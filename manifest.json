@@ -1,0 +1,9 @@
+{
+    "version": 1.1,
+    "files": [
+        "core.lua",
+        "command.lua"
+    ],
+    "exec": "command.lua",
+    "startup": "core.lua"
+}

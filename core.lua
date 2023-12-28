@@ -326,7 +326,7 @@ function pgmGet.install(program, version, toShell)
         baseURI = baseURI .. vString .. '/'
     end
 
-    local cb = '?'..(os.epoch('utc')%60000)
+    local cb = '?cb='..(os.epoch('utc')%60000)
 
     if mProgram.versions or mProgram.git then
         local resp, fMsg = http.get(baseURI .. 'manifest.json'..cb)

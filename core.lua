@@ -5,6 +5,7 @@ local pgmGet = {
     binPath = "/os/bin/", --- local program intallation path
     binModPath = "os.bin.", --- local program installation module path (for require)
     remoteURL = "https://peter.crall.family/minecraft/cc/pgm-get/", --- Remote repository URL
+    gitURL = "https://raw.githubusercontent.com/peterOS-pgm-get/", --- Remote repository URL
     log = Logger('/home/.pgmLog/pgm-get.log'),                      --- Logger
     warnOld = true, --- Warn on old program detected
     manifest = {}, ---@type ProgramData[] --- List of all known programs
@@ -295,7 +296,13 @@ function pgmGet.install(program, version, toShell)
     end
     local vString = pgmGet.fixVersionString(version)
 
-    if mProgram.versions then
+    if mProgram.git then
+        if version == 'latest' then
+            baseURI = pgmGet.gitURL .. ('%s/master/'):format(program)
+        else
+            baseURI = pgmGet.gitURL .. ('%s/v%s/'):format(program, vString)
+        end
+    elseif mProgram.versions then
         local hasVersion = false
         for _, v in pairs(mProgram.versions) do
             if v == version then
@@ -309,7 +316,7 @@ function pgmGet.install(program, version, toShell)
         baseURI = baseURI .. vString .. '/'
     end
 
-    if mProgram.versions then
+    if mProgram.versions or mProgram.git then
         local resp, fMsg = http.get(baseURI .. 'manifest.json')
         if resp == nil then
             pgmGet.log:error('Could not get sub manifest; Timeout')

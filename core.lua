@@ -6,7 +6,7 @@ local pgmGet = {
     binModPath = "os.bin.", --- local program installation module path (for require)
     remoteURL = "https://peter.crall.family/minecraft/cc/pgm-get/", --- Remote repository URL
     gitURL = "https://raw.githubusercontent.com/peterOS-pgm-get/", --- Remote repository URL
-    log = Logger('/home/.pgmLog/pgm-get.log'),                      --- Logger
+    log = pos.Logger('/home/.pgmLog/pgm-get.log'),                      --- Logger
     warnOld = true, --- Warn on old program detected
     manifest = {}, ---@type ProgramData[] --- List of all known programs
     _manifest = {}, ---@type {string: ProgramData} --- Table of all known programs, indexed by program name
@@ -299,8 +299,10 @@ function pgmGet.install(program, version, toShell)
     if mProgram.git then
         if version == 'latest' then
             baseURI = pgmGet.gitURL .. ('%s/master/'):format(program)
+            pgmGet.log:info(('Getting program %s from git on branch `master`'):format(program))
         else
             baseURI = pgmGet.gitURL .. ('%s/v%s/'):format(program, vString)
+            pgmGet.log:info(('Getting program %s from git on branch `v%s`'):format(program, vString))
         end
     elseif mProgram.versions then
         local hasVersion = false
@@ -346,10 +348,11 @@ function pgmGet.install(program, version, toShell)
     pts('Installing ' .. program .. ' v' .. vString)
 
     pts('Downloading files . . .')
+    pgmGet.log:debug('Getting files from '..baseURI)
     for _, file in pairs(mProgram.files) do
         pts('- ' .. file)
         pgmGet.log:debug('Downloading file ' .. file)
-        local resp, fMsg = http.get(baseURI .. file..cb)
+        local resp, fMsg = http.get(baseURI .. file .. cb)
         if resp == nil then
             pgmGet.log:error("HTTP error; Timeout")
             return false, 'HTTP Error; Timeout'

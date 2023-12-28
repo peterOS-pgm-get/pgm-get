@@ -13,11 +13,16 @@ local pgmGet = {
     programs = {}, ---@type ProgramData[] --- List of all installed programs
     _programs = {}, ---@type {string: ProgramData} --- Table of all installed programs, indexed by program name
 }
-if not _G.pgmGet then
-    _G.pgmGet = pgmGet
-else
-    pgmGet = _G.pgmGet
+if _G.pgmGet then
+    local temp = _G.pgmGet
+    for k,v in pairs(pgmGet) do
+        if temp[k] == nil then
+            temp[k] = v
+        end
+    end
+    pgmGet = temp
 end
+_G.pgmGet = pgmGet
 
 local fsOpen = fs.open
 

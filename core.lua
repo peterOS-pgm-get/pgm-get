@@ -88,13 +88,13 @@ local function toTableManifests()
     pgmGet._programs = pTable
 end
 
----Initilize pgm-get
----@return boolean succecss
+---Initialize pgm-get
+---@return boolean success
 function pgmGet.init(osFsOpen)
     if(osFsOpen) then
         fsOpen = osFsOpen
     end
-    if not pgmGet.manifest or #pgmGet.manifest == 0  then
+    if not pgmGet.manifest or #pgmGet.manifest == 0 and fs.exists(pgmGet.manifestFilePath) then
         local f = fs.open(pgmGet.manifestFilePath, 'r')
         if not f then
             pgmGet.log:error('Could not read local manifest file')
@@ -109,7 +109,7 @@ function pgmGet.init(osFsOpen)
         end
         pgmGet.log:info('Loaded manifest from local file')
     end
-    if not pgmGet.programs or #pgmGet.programs == 0 then
+    if not pgmGet.programs or #pgmGet.programs == 0 and fs.exists(pgmGet.pgmFilePath) then
         local f = fs.open(pgmGet.pgmFilePath, 'r')
         if not f then
             pgmGet.log:error('Could not read program list file')

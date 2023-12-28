@@ -5,7 +5,7 @@ local pgmGet = {
     binPath = "/os/bin/", --- local program installation path
     binModPath = "os.bin.", --- local program installation module path (for require)
     remoteURL = "https://peter.crall.family/minecraft/cc/pgm-get/", --- Remote repository URL
-    gitURL = "https://raw.githubusercontent.com/peterOS-pgm-get/", --- Remote repository URL
+    gitURL = "https://raw.githubusercontent.com/peterOS-pgm-get/", --- Git repository URL
     log = pos.Logger('/home/.pgmLog/pgm-get.log'),                      --- Logger
     warnOld = true, --- Warn on old program detected
     manifest = {}, ---@type ProgramData[] --- List of all known programs
@@ -284,8 +284,10 @@ function pgmGet.install(program, version, toShell)
 
     local forcedVersion = false
     version = version or 'latest'
+    local latest = false
     if version == 'latest' then
         version = mProgram.version
+        latest = true
     else
         local v = tonumber(version)
         if not v then
@@ -297,12 +299,13 @@ function pgmGet.install(program, version, toShell)
     local vString = pgmGet.fixVersionString(version)
 
     if mProgram.git then
-        if version == 'latest' then
+        if latest then
             baseURI = pgmGet.gitURL .. ('%s/master/'):format(program)
             pgmGet.log:info(('Getting program %s from git on branch `master`'):format(program))
         else
-            baseURI = pgmGet.gitURL .. ('%s/v%s/'):format(program, vString)
-            pgmGet.log:info(('Getting program %s from git on branch `v%s`'):format(program, vString))
+            forcedVersion = true
+            baseURI = pgmGet.gitURL .. ('%s/v%s/'):format(program, version)
+            pgmGet.log:info(('Getting program %s from git on branch `v%s`'):format(program, version))
         end
     elseif mProgram.versions then
         local hasVersion = false

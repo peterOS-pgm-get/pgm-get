@@ -2,7 +2,7 @@ local Logger = pos.require('logger')
 local pgmGet = {
     manifestFilePath = "/os/pgm-get-manifest.json", --- local path to manifest file
     pgmFilePath = "/os/pgms.json", --- local path to program list file
-    binPath = "/os/bin/", --- local program intallation path
+    binPath = "/os/bin/", --- local program installation path
     binModPath = "os.bin.", --- local program installation module path (for require)
     remoteURL = "https://peter.crall.family/minecraft/cc/pgm-get/", --- Remote repository URL
     gitURL = "https://raw.githubusercontent.com/peterOS-pgm-get/", --- Remote repository URL
@@ -25,9 +25,9 @@ local fsOpen = fs.open
 function pgmGet.setCompleter()
     local complete = function(shell, index, arg, args)
         if index == 1 then
-            local oprs = { "update", "install", "upgrade", "list", "uninstall" }
+            local operands = { "update", "install", "upgrade", "list", "uninstall" }
             local opt = {}
-            for _, opr in pairs(oprs) do
+            for _, opr in pairs(operands) do
                 if string.start(opr, arg) then
                     table.insert(opt, string.sub(opr, string.len(arg) + 1))
                 end
@@ -133,7 +133,7 @@ function pgmGet.init(osFsOpen)
 end
 
 ---Save the current list of installed programs to file
----@return boolean succecss
+---@return boolean success
 function pgmGet.savePgmList()
     if not pgmGet.programs and #pgmGet.programs > 0 then
         return false
@@ -155,7 +155,7 @@ function pgmGet.savePgmList()
 end
 
 ---Update program manifest from remote
----@return boolean succecss
+---@return boolean success
 function pgmGet.updateManifest(warnOld)
     -- if not user.isSu() then
     --     pgmGet.log:warn('Tried to update manifest file, but had insufficient permissions')
@@ -216,7 +216,7 @@ end
 ---Get program data from installed program list.
 ---Returns nil if the program is not installed
 ---@param program string program name
----@return table|nil data program data, includding version, files, options and more
+---@return table|nil data program data, including version, files, options and more
 function pgmGet.getPgmData(program)
     if not pgmGet.programs then
         if not pgmGet.init() then
@@ -239,7 +239,7 @@ function pgmGet.getManifestPgmData(program)
     return pgmGet._manifest[program]
 end
 
----Fixes a version string to include trailling zeros for whole numbers
+---Fixes a version string to include trailing zeros for whole numbers
 ---@param version number version number
 ---@return string version version as proper string
 function pgmGet.fixVersionString(version)
@@ -255,7 +255,7 @@ end
 ---@param version string|number|nil program version (use nil or 'latest' to install latest without forcing version)
 ---@param toShell boolean|nil if status should be printed to the shell (defaults for false)
 ---@return boolean success if the program was installed
----@return string|nil error description of error encounted, if any
+---@return string|nil error description of error encountered, if any
 function pgmGet.install(program, version, toShell)
     local pts = function(msg)
         if toShell then
@@ -316,8 +316,10 @@ function pgmGet.install(program, version, toShell)
         baseURI = baseURI .. vString .. '/'
     end
 
+    local cb = '?'..(os.epoch('utc')%60000)
+
     if mProgram.versions or mProgram.git then
-        local resp, fMsg = http.get(baseURI .. 'manifest.json')
+        local resp, fMsg = http.get(baseURI .. 'manifest.json'..cb)
         if resp == nil then
             pgmGet.log:error('Could not get sub manifest; Timeout')
             return false, "Could not get sub manifest; Timeout"
@@ -347,7 +349,7 @@ function pgmGet.install(program, version, toShell)
     for _, file in pairs(mProgram.files) do
         pts('- ' .. file)
         pgmGet.log:debug('Downloading file ' .. file)
-        local resp, fMsg = http.get(baseURI .. file)
+        local resp, fMsg = http.get(baseURI .. file..cb)
         if resp == nil then
             pgmGet.log:error("HTTP error; Timeout")
             return false, 'HTTP Error; Timeout'
@@ -421,8 +423,8 @@ end
 
 ---Upgrade all programs if possible
 ---@param toShell boolean if status should be printed to shell
----@return boolean success if upgrade did not encounter any erorrs
----@return string|nil error description of error encounted, if any
+---@return boolean success if upgrade did not encounter any errors
+---@return string|nil error description of error encountered, if any
 function pgmGet.upgrade(toShell)
     local pts = function(msg)
         if toShell then
@@ -462,7 +464,7 @@ end
 ---Uninstall a program, and remove it from local registry
 ---@param program string program name
 ---@return boolean success if the program was uninstalled
----@return string|nil error description of error encounted, if any
+---@return string|nil error description of error encountered, if any
 function pgmGet.uninstall(program, toShell)
     local pts = function(msg)
         if toShell then
@@ -515,8 +517,9 @@ end
 ---@field name string (Local only) Program name
 ---@field version number Version number
 ---@field files string[] List of files for program
----@field url nil|string Alternent remote repository base url
+---@field url nil|string Alternant remote repository base url
 ---@field cmpt nil|string CLI completer file
 ---@field exec nil|string CLI script
 ---@field startup nil|string|string[] Startup file(s)
 ---@field isLocal nil|boolean (Local manifest only) If the program is not from a remote
+---@field git nil|boolean If the program should be gotten from the github repository

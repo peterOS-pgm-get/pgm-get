@@ -9,9 +9,9 @@ local pgmGet = {
     log = pos.Logger('/home/.pgmLog/pgm-get.log'),                      --- Logger
     warnOld = true, --- Warn on old program detected
     manifest = {}, ---@type ProgramData[] --- List of all known programs
-    _manifest = {}, ---@type {string: ProgramData} --- Table of all known programs, indexed by program name
+    _manifest = {}, ---@type { [string]: ProgramData } --- Table of all known programs, indexed by program name
     programs = {}, ---@type ProgramData[] --- List of all installed programs
-    _programs = {}, ---@type {string: ProgramData} --- Table of all installed programs, indexed by program name
+    _programs = {}, ---@type { [string]: ProgramData } --- Table of all installed programs, indexed by program name
 }
 if _G.pgmGet then
     local temp = _G.pgmGet
@@ -533,4 +533,4 @@ end
 ---@field exec nil|string CLI script
 ---@field startup nil|string|string[] Startup file(s)
 ---@field isLocal nil|boolean (Local manifest only) If the program is not from a remote
----@field git nil|boolean If the program should be gotten from the github repository
+---@field git nil|boolean If the program should be gotten from the GitHub repository

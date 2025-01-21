@@ -1,4 +1,3 @@
-local Logger = pos.require('logger')
 local pgmGet = {
     manifestFilePath = "/os/pgm-get-manifest.json", --- local path to manifest file
     pgmFilePath = "/os/pgms.json", --- local path to program list file
@@ -6,13 +5,26 @@ local pgmGet = {
     binModPath = "os.bin.", --- local program installation module path (for require)
     remoteURL = "https://peter.crall.family/minecraft/cc/pgm-get/", --- Remote repository URL
     gitURL = "https://raw.githubusercontent.com/peterOS-pgm-get/", --- Git repository URL
-    log = pos.Logger('/home/.pgmLog/pgm-get.log'),                      --- Logger
+    log = nil,                      ---@type Logger Logger
     warnOld = true, --- Warn on old program detected
     manifest = {}, ---@type ProgramData[] --- List of all known programs
     _manifest = {}, ---@type { [string]: ProgramData } --- Table of all known programs, indexed by program name
     programs = {}, ---@type ProgramData[] --- List of all installed programs
     _programs = {}, ---@type { [string]: ProgramData } --- Table of all installed programs, indexed by program name
 }
+if _G.pos then
+    pgmGet.log = pos.Logger('/home/.pgmLog/pgm-get.log')
+else -- POS isn't running, so this is probably a first time install
+    --Create a dummy logger to prevent errors
+    ---@diagnostic disable-next-line: missing-fields
+    pgmGet.log = {
+        fatal = function() end,
+        error = function() end,
+        warn = function() end,
+        info = function() end,
+        debug = function() end
+    }
+end
 if _G.pgmGet then
     local temp = _G.pgmGet
     for k, v in pairs(pgmGet) do
@@ -408,14 +420,12 @@ function pgmGet.install(program, version, toShell)
     end
 
     shell.setAlias(program, pgmGet.binPath .. program .. "/" .. mProgram.exec)
-    if mProgram.cmpt then
-        if _G.pos then
-            shell.setCompletionFunction(pgmGet.binPath .. program .. "/" .. mProgram.exec,
-                pos.require(pgmGet.binModPath .. program .. "." .. mProgram.cmpt).complete)
-        end
+    if mProgram.cmpt and _G.pos then
+        shell.setCompletionFunction(pgmGet.binPath .. program .. "/" .. mProgram.exec,
+            pos.require(pgmGet.binModPath .. program .. "." .. mProgram.cmpt).complete)
         pts('Set completer')
     end
-    if mProgram.startup then
+    if mProgram.startup and _G.pos then
         if type(mProgram.startup) == 'table' then
             local startup = mProgram.startup ---@cast startup string[]
             for _, file in pairs(startup) do

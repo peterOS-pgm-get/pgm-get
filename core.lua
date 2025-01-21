@@ -15,7 +15,7 @@ local pgmGet = {
 }
 if _G.pgmGet then
     local temp = _G.pgmGet
-    for k,v in pairs(pgmGet) do
+    for k, v in pairs(pgmGet) do
         if temp[k] == nil then
             temp[k] = v
         end
@@ -527,6 +527,7 @@ end
 ---@field program string (Manifest only) Program name
 ---@field name string (Local only) Program name
 ---@field version number Version number
+---@field versions number[]|nil Available versions
 ---@field files string[] List of files for program
 ---@field url nil|string Alternant remote repository base url
 ---@field cmpt nil|string CLI completer file
@@ -534,3 +535,4 @@ end
 ---@field startup nil|string|string[] Startup file(s)
 ---@field isLocal nil|boolean (Local manifest only) If the program is not from a remote
 ---@field git nil|boolean If the program should be gotten from the GitHub repository
+---@field forcedVersion nil|boolean If the local program version is forced or latest

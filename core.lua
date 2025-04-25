@@ -419,7 +419,9 @@ function pgmGet.install(program, version, toShell)
         return false, 'Could not save program list'
     end
 
-    shell.setAlias(program, pgmGet.binPath .. program .. "/" .. mProgram.exec)
+    if mProgram.exec then
+        shell.setAlias(program, pgmGet.binPath .. program .. "/" .. mProgram.exec)
+    end
     if mProgram.cmpt and _G.pos then
         shell.setCompletionFunction(pgmGet.binPath .. program .. "/" .. mProgram.exec,
             pos.require(pgmGet.binModPath .. program .. "." .. mProgram.cmpt).complete)
